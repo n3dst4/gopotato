@@ -10,6 +10,7 @@ import (
 	"os/user"
 
 	"github.com/BurntSushi/toml"
+	"github.com/fatih/color"
 	"github.com/go-playground/validator/v10"
 	"github.com/kr/pretty"
 	"github.com/spf13/cobra"
@@ -23,6 +24,8 @@ var rootCmd = &cobra.Command{
 
 	// PersistentPreRun
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		color.Cyan("Reading config file from %s", configFilePath)
+
 		// read config file (confiFilePath has been set by cobra)
 		txt, err := os.ReadFile(configFilePath)
 		if err != nil {
@@ -36,7 +39,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		// pretty print config
-		pretty.Println("Config loaded:", config)
+		color.Cyan(pretty.Sprint("Config loaded:", config))
 
 		// validate config
 		validate = validator.New(validator.WithRequiredStructEnabled())
