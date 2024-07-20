@@ -23,21 +23,20 @@ func arrange() {
 		log.Fatal(err)
 	}
 
+	archiveOldJournals()
+	createTodaysJournal()
+}
+
+func archiveOldJournals() {
 	entries, err := os.ReadDir(".")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	archiveOldJournals(entries)
-}
-
-func archiveOldJournals(
-	journalFiles []fs.DirEntry,
-) {
 	now := time.Now()
 	oneMonthAgo := now.AddDate(0, -1, 0)
 
-	for _, file := range journalFiles {
+	for _, file := range entries {
 		matches := journalFilenameRegex.FindStringSubmatch(file.Name())
 
 		if file.IsDir() {
@@ -71,6 +70,51 @@ func archiveOldJournals(
 			os.Rename(file.Name(), fmt.Sprintf("%s/%s", folderPath, fileName))
 		}
 	}
+}
+
+func createTodaysJournal() {
+	entries, err := os.ReadDir(".")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// const todayDate = new Date().toISOString().slice(0, 10);
+	// const todayFileName = `${todayDate}.md`;
+	todayDateString := time.Now().Format("2006-01-02")
+	todayFileName := todayDateString + ".md"
+	// const todayFile = Array.from(journalFiles).find(
+	//   (file) => file.name === todayFileName
+	// );
+	var todayFile fs.DirEntry
+	for _, file := range entries {
+		if file.Name() == todayFileName && file.Type().IsRegular() {
+			todayFile = file
+		}
+	}
+	if todayFile == nil {
+		color.Green("Creating new journal file: %s", todayFileName)
+		file, err := os.Create(todayFileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
+		_, err = file.WriteString(fmt.Sprintf("# %s\n\n", todayDateString))
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		color.Blue("Existing journal file: %s", todayFileName)
+	}
+
+	// const fullTodayFileName = join(journalsPath, todayFileName);
+	// // if not, create a new file with today's date
+	// if (!todayFile) {
+	//   console.log(chalk.green(`Creating new journal file: ${fullTodayFileName}`));
+	//   const todayFile = Deno.createSync(fullTodayFileName);
+	//   writeAllSync(todayFile, new TextEncoder().encode(`# ${todayDate}\n\n`));
+	// } else {
+	//   console.log(chalk.blue(`Existing journal file: ${fullTodayFileName}`));
+	// }
 }
 
 // arrangeCmd represents the arrange command
