@@ -20,6 +20,7 @@ examples and usage of using your application. `,
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Go Potato!")
+		arrange()
 	},
 }
 
