@@ -15,8 +15,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// does the daily chores
 func arrange() {
-	// read current directory
 	err := os.Chdir(config.JournalsPath)
 	defer os.Chdir(config.RootPath)
 	if err != nil {
@@ -27,6 +27,8 @@ func arrange() {
 	createTodaysJournal()
 }
 
+// archiveOldJournals moves journals older than the configured threshold to a
+// YYYY-MM/ folder
 func archiveOldJournals() {
 	entries, err := os.ReadDir(".")
 	if err != nil {
@@ -72,25 +74,23 @@ func archiveOldJournals() {
 	}
 }
 
+// createTodaysJournal creates a new journal file if one does not already exist
 func createTodaysJournal() {
 	entries, err := os.ReadDir(".")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// const todayDate = new Date().toISOString().slice(0, 10);
-	// const todayFileName = `${todayDate}.md`;
 	todayDateString := time.Now().Format("2006-01-02")
 	todayFileName := todayDateString + ".md"
-	// const todayFile = Array.from(journalFiles).find(
-	//   (file) => file.name === todayFileName
-	// );
+
 	var todayFile fs.DirEntry
 	for _, file := range entries {
 		if file.Name() == todayFileName && file.Type().IsRegular() {
 			todayFile = file
 		}
 	}
+
 	if todayFile == nil {
 		color.Green("Creating new journal file: %s", todayFileName)
 		file, err := os.Create(todayFileName)
@@ -106,18 +106,8 @@ func createTodaysJournal() {
 		color.Blue("Existing journal file: %s", todayFileName)
 	}
 
-	// const fullTodayFileName = join(journalsPath, todayFileName);
-	// // if not, create a new file with today's date
-	// if (!todayFile) {
-	//   console.log(chalk.green(`Creating new journal file: ${fullTodayFileName}`));
-	//   const todayFile = Deno.createSync(fullTodayFileName);
-	//   writeAllSync(todayFile, new TextEncoder().encode(`# ${todayDate}\n\n`));
-	// } else {
-	//   console.log(chalk.blue(`Existing journal file: ${fullTodayFileName}`));
-	// }
 }
 
-// arrangeCmd represents the arrange command
 var arrangeCmd = &cobra.Command{
 	Use:   "arrange",
 	Short: "Idempotently creates today's journal and organises older journals",
@@ -130,14 +120,4 @@ var arrangeCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(arrangeCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// arrangeCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// arrangeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
