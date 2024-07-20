@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/fatih/color"
@@ -38,6 +39,13 @@ var rootCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
+		if strings.HasPrefix(config.RootPath, "~") {
+			config.RootPath = usr.HomeDir + config.RootPath[1:]
+		}
+
+		config.JournalsPath = fmt.Sprintf("%s/%s", config.RootPath, config.JournalsPath)
+		config.PagesPath = fmt.Sprintf("%s/%s", config.RootPath, config.PagesPath)
+
 		// pretty print config
 		color.Cyan(pretty.Sprint("Config loaded:", config))
 
@@ -51,7 +59,6 @@ var rootCmd = &cobra.Command{
 
 	// Run
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Root command called")
 		arrange()
 	},
 }
@@ -64,7 +71,8 @@ func Execute() {
 }
 
 func init() {
-	usr, err := user.Current()
+	var err error
+	usr, err = user.Current()
 	if err != nil {
 		fmt.Println(err)
 	}
