@@ -10,7 +10,6 @@ import (
 )
 
 func arrange() {
-	fmt.Println("Arranging with config from", configFilePath)
 
 }
 

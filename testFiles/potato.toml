@@ -1,0 +1,8 @@
+rootPath = "~/Sync/notes"
+keepDays = 6
+
+[carryOverTodos]
+enabled = true
+onlyIncomplete = true
+headingRegex = "^#to[- ]?dos? *$"
+headingRegexCaseSensitive = false

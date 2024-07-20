@@ -10,49 +10,43 @@ import (
 	"os/user"
 
 	"github.com/BurntSushi/toml"
+	"github.com/go-playground/validator/v10"
 	"github.com/kr/pretty"
 	"github.com/spf13/cobra"
 )
-
-var longDesc = `
-Gopotato is a journal manager for Go. It is a rewrite of Potato.
-`
-
-var configFilePath string = ""
-
-type CarryOverTodos struct {
-	Enabled                   bool
-	OnlyIncomplete            bool
-	HeadingRegex              string
-	HeadingRegexCaseSensitive bool
-}
-
-type Config struct {
-	RootPath       string
-	KeepDays       int
-	CarryOverTodos CarryOverTodos
-}
-
-var config Config
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "gopotato",
 	Short: "Go rewrite of potato jornal manager",
 	Long:  longDesc,
+
+	// PersistentPreRun
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		// read config file (confiFilePath has been set by cobra)
 		txt, err := os.ReadFile(configFilePath)
 		if err != nil {
 			log.Fatal(err)
 		}
 
+		// deserialize config file into &config, overwriting existing values
 		_, err = toml.Decode(string(txt), &config)
 		if err != nil {
 			log.Fatal(err)
 		}
 
+		// pretty print config
 		pretty.Println("Config loaded:", config)
+
+		// validate config
+		validate = validator.New(validator.WithRequiredStructEnabled())
+		err = validate.Struct(config)
+		if err != nil {
+			log.Fatal(err)
+		}
 	},
+
+	// Run
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Root command called")
 		arrange()
