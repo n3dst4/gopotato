@@ -5,27 +5,60 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"os/user"
 
+	"github.com/BurntSushi/toml"
+	"github.com/kr/pretty"
 	"github.com/spf13/cobra"
 )
+
+var longDesc = `
+Gopotato is a journal manager for Go. It is a rewrite of Potato.
+`
+
+var configFilePath string = ""
+
+type CarryOverTodos struct {
+	Enabled                   bool
+	OnlyIncomplete            bool
+	HeadingRegex              string
+	HeadingRegexCaseSensitive bool
+}
+
+type Config struct {
+	RootPath       string
+	KeepDays       int
+	CarryOverTodos CarryOverTodos
+}
+
+var config Config
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "gopotato",
 	Short: "Go rewrite of potato jornal manager",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. `,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
+	Long:  longDesc,
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		txt, err := os.ReadFile(configFilePath)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		_, err = toml.Decode(string(txt), &config)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		pretty.Println("Config loaded:", config)
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Go Potato!")
+		fmt.Println("Root command called")
 		arrange()
 	},
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
@@ -34,13 +67,15 @@ func Execute() {
 }
 
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
+	usr, err := user.Current()
+	if err != nil {
+		fmt.Println(err)
+	}
 
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.gopotato.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().StringVar(
+		&configFilePath,
+		"config",
+		usr.HomeDir+"/.local/config/potato.toml",
+		"config file (default is $HOME/.gopotato.yaml)",
+	)
 }
