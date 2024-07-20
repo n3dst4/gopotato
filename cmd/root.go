@@ -77,9 +77,10 @@ func init() {
 		fmt.Println(err)
 	}
 
-	rootCmd.PersistentFlags().StringVar(
+	rootCmd.PersistentFlags().StringVarP(
 		&configFilePath,
 		"config",
+		"c",
 		usr.HomeDir+"/.local/config/potato.toml",
 		"config file (default is $HOME/.gopotato.yaml)",
 	)
