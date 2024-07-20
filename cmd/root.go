@@ -23,7 +23,7 @@ var rootCmd = &cobra.Command{
 	Short: "Go rewrite of potato jornal manager",
 	Long:  longDesc,
 
-	// PersistentPreRun
+	// PersistentPreRun - always runs before any subcommands
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		color.Cyan("Reading config file from %s", configFilePath)
 
