@@ -31,6 +31,10 @@ var rootCmd = &cobra.Command{
 
 	// PersistentPreRun - always runs before any subcommands
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		if cmd.Parent().Name() == "completion" {
+			return
+		}
+
 		configFilePath = utils.TildeToHomeDir(configFilePath)
 		color.Cyan("Reading config file from %s", configFilePath)
 		// read config file (configFilePath has been set by cobra)
