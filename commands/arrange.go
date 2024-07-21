@@ -112,7 +112,7 @@ func createTodaysJournal() {
 	}
 
 	if todayFile == nil {
-		color.Green("Creating new journal file: %s", todayFileName)
+		color.Green("Creating new journal file: %s", (config.JournalsPath + "/" + todayFileName))
 		file, err := os.Create(todayFileName)
 		if err != nil {
 			log.Fatal(err)
