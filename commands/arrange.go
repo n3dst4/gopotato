@@ -8,12 +8,32 @@ import (
 	"io/fs"
 	"log"
 	"os"
+	"regexp"
 	"strconv"
 	"time"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
+
+var arrangeCmd = &cobra.Command{
+	Use:   "arrange",
+	Short: "Idempotently creates today's journal and organises older journals",
+	Long: `Creates today's journal in the format YYYY-MM-DD.md, and moves older
+	journals to YYYY-MM/ if they are older than the configured threshold.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		arrange()
+	},
+}
+
+var journalFilenameRegex *regexp.Regexp
+
+func init() {
+	rootCmd.AddCommand(arrangeCmd)
+	journalFilenameRegex, _ = regexp.Compile(
+		`^(\d{4})[-_](\d{2})[-_](\d{2}).(?:md|markdown)$`,
+	)
+}
 
 // does the daily chores
 func arrange() {
@@ -106,18 +126,4 @@ func createTodaysJournal() {
 		color.Blue("Existing journal file: %s", todayFileName)
 	}
 
-}
-
-var arrangeCmd = &cobra.Command{
-	Use:   "arrange",
-	Short: "Idempotently creates today's journal and organises older journals",
-	Long: `Creates today's journal in the format YYYY-MM-DD.md, and moves older
-	journals to YYYY-MM/ if they are older than the configured threshold.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		arrange()
-	},
-}
-
-func init() {
-	rootCmd.AddCommand(arrangeCmd)
 }

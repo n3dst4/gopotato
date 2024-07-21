@@ -1,4 +1,4 @@
-package commands
+package config
 
 type CarryOverTodos struct {
 	Enabled                   bool

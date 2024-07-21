@@ -4,54 +4,42 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package commands
 
 import (
-	"fmt"
 	"log"
+	cfg "lumphammer/gopotato/config"
+	"lumphammer/gopotato/utils"
 	"os"
-	"os/user"
-	"strings"
 
-	"github.com/BurntSushi/toml"
 	"github.com/fatih/color"
-	"github.com/go-playground/validator/v10"
-	"github.com/kr/pretty"
 	"github.com/spf13/cobra"
 )
+
+// constants
+const LONGDESC = `
+Gopotato is a journal manager for Go. It is a rewrite of Potato.
+`
+
+// values set at runtime
+var config *cfg.Config
+var configFilePath string = ""
+
+// var usr *user.User
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "gopotato",
 	Short: "Go rewrite of potato jornal manager",
-	Long:  longDesc,
+	Long:  LONGDESC,
 
 	// PersistentPreRun - always runs before any subcommands
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		configFilePath = utils.TildeToHomeDir(configFilePath)
 		color.Cyan("Reading config file from %s", configFilePath)
-
-		// read config file (confiFilePath has been set by cobra)
+		// read config file (configFilePath has been set by cobra)
 		txt, err := os.ReadFile(configFilePath)
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		// deserialize config file into &config, overwriting existing values
-		_, err = toml.Decode(string(txt), &config)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		if strings.HasPrefix(config.RootPath, "~") {
-			config.RootPath = usr.HomeDir + config.RootPath[1:]
-		}
-
-		config.JournalsPath = fmt.Sprintf("%s/%s", config.RootPath, config.JournalsPath)
-		config.PagesPath = fmt.Sprintf("%s/%s", config.RootPath, config.PagesPath)
-
-		// pretty print config
-		color.Cyan(pretty.Sprint("Config loaded:", config))
-
-		// validate config
-		validate = validator.New(validator.WithRequiredStructEnabled())
-		err = validate.Struct(config)
+		config, err = cfg.ParseConfig(string(txt))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -63,25 +51,19 @@ var rootCmd = &cobra.Command{
 	},
 }
 
+func init() {
+	rootCmd.PersistentFlags().StringVarP(
+		&configFilePath,
+		"config",
+		"c",
+		"~/.local/config/potato.toml",
+		"config file (default is $HOME/.gopotato.yaml)",
+	)
+}
+
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
 	}
-}
-
-func init() {
-	var err error
-	usr, err = user.Current()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	rootCmd.PersistentFlags().StringVarP(
-		&configFilePath,
-		"config",
-		"c",
-		usr.HomeDir+"/.local/config/potato.toml",
-		"config file (default is $HOME/.gopotato.yaml)",
-	)
 }
