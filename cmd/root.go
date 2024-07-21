@@ -1,5 +1,5 @@
 // Commands for the potato system
-package commands
+package cmd
 
 import (
 	"log"
