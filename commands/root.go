@@ -1,13 +1,12 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
+// Commands for the potato system
 package commands
 
 import (
 	"log"
-	cfg "lumphammer/gopotato/config"
-	"lumphammer/gopotato/utils"
 	"os"
+
+	cfg "github.com/n3dst4/gopotato/config"
+	"github.com/n3dst4/gopotato/utils"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"

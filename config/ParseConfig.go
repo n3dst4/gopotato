@@ -1,8 +1,10 @@
+// Configuration for the potato system
 package config
 
 import (
 	"fmt"
-	"lumphammer/gopotato/utils"
+
+	"github.com/n3dst4/gopotato/utils"
 
 	"github.com/BurntSushi/toml"
 	"github.com/fatih/color"

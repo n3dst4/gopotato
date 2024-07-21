@@ -1,5 +1,16 @@
 # gopotato
 
-https://pkg.go.dev/github.com/BurntSushi/toml
+a Go rewrite of Potato, a minimalist journal manager I originally wrote in Deno.
 
-https://pkg.go.dev/github.com/go-playground/validator/v10#section-readme
+
+
+
+## Usage
+
+```
+gopotato
+```
+
+## Configuration
+
+Configuration is stored in a TOML file.

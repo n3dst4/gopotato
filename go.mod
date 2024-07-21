@@ -1,4 +1,4 @@
-module lumphammer/gopotato
+module github.com/n3dst4/gopotato
 
 go 1.22.4
 
