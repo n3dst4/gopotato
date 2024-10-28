@@ -5,7 +5,7 @@ go 1.22.4
 require (
 	github.com/BurntSushi/toml v1.4.0
 	github.com/fatih/color v1.17.0
-	github.com/go-playground/validator/v10 v10.22.0
+	github.com/go-playground/validator/v10 v10.22.1
 	github.com/kr/pretty v0.3.1
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
