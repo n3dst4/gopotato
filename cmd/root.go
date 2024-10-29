@@ -44,6 +44,13 @@ var rootCmd = &cobra.Command{
 	Short: "Go rewrite of potato jornal manager",
 	Long:  LONGDESC,
 
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		fmt.Println("rootCmd.PersistentPreRun")
+		if cmd.Name() != "init" {
+			initConfig()
+		}
+	},
+
 	// Run
 	Run: func(cmd *cobra.Command, args []string) {
 		arrange()
@@ -52,7 +59,6 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(
-
 		&configFilePath,
 		"config",
 		"c",
@@ -60,7 +66,7 @@ func init() {
 		"config file (default is $HOME/.gopotato.yaml)",
 	)
 
-	cobra.OnInitialize(initConfig)
+	// cobra.OnInitialize(initConfig)
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -84,11 +90,11 @@ func initConfig() {
 	}
 
 	viper.Unmarshal(&config)
-	validate := validator.New(validator.WithRequiredStructEnabled())
-	err := validate.Struct(config)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// validate := validator.New(validator.WithRequiredStructEnabled())
+	// err := validate.Struct(config)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 	config.RootPath = utils.TildeToHomeDir(config.RootPath)
 	config.JournalsPath = fmt.Sprintf("%s/%s", config.RootPath, config.JournalsPath)
 	config.PagesPath = fmt.Sprintf("%s/%s", config.RootPath, config.PagesPath)
@@ -100,5 +106,13 @@ func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
+	}
+}
+
+func validateConfig() {
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	err := validate.Struct(config)
+	if err != nil {
+		log.Fatal(err)
 	}
 }

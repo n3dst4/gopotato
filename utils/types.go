@@ -7,6 +7,10 @@ type CarryOverTodos struct {
 	HeadingRegexCaseSensitive bool
 }
 
+type BaselineConfig struct {
+	RootPath string `validate:"required"`
+}
+
 type Config struct {
 	RootPath       string `validate:"required"`
 	KeepDays       int

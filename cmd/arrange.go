@@ -37,6 +37,7 @@ func init() {
 
 // does the daily chores
 func arrange() {
+	validateConfig()
 	err := os.Chdir(config.JournalsPath)
 	defer os.Chdir(config.RootPath)
 	if err != nil {
