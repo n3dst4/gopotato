@@ -3,7 +3,7 @@ module github.com/n3dst4/gopotato
 go 1.22.4
 
 require (
-	github.com/BurntSushi/toml v1.4.0
+	github.com/BurntSushi/toml v1.5.0
 	github.com/fatih/color v1.18.0
 	github.com/go-playground/validator/v10 v10.25.0
 	github.com/kr/pretty v0.3.1
