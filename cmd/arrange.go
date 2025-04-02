@@ -124,7 +124,7 @@ func createTodaysJournal() {
 			log.Fatal(err)
 		}
 	} else {
-		color.Blue("Existing journal file: %s", todayFileName)
+		color.Blue("Existing journal file: %s", config.JournalsPath+"/"+todayFileName)
 	}
 
 }
