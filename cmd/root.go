@@ -9,7 +9,6 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/go-playground/validator/v10"
-	"github.com/kr/pretty"
 
 	"github.com/n3dst4/gopotato/utils"
 
@@ -99,7 +98,7 @@ func initConfig() {
 	config.JournalsPath = fmt.Sprintf("%s/%s", config.RootPath, config.JournalsPath)
 	config.PagesPath = fmt.Sprintf("%s/%s", config.RootPath, config.PagesPath)
 
-	color.Cyan(pretty.Sprint("Config loaded:", config))
+	printConfig(config)
 }
 
 func Execute() {
@@ -115,4 +114,22 @@ func validateConfig() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func printConfig(cfg *utils.Config) {
+	keyColor := color.New(color.FgBlue)
+	valueColor := color.New(color.FgGreen)
+
+	fmt.Printf("\nConfiguration:\n")
+	keyColor.Printf("%-15s", "Root Path:")
+	valueColor.Printf(" %s\n", cfg.RootPath)
+	keyColor.Printf("%-15s", "Journals Path:")
+	valueColor.Printf(" %s\n", cfg.JournalsPath)
+	keyColor.Printf("%-15s", "Pages Path:")
+	valueColor.Printf(" %s\n", cfg.PagesPath)
+	keyColor.Printf("%-15s", "Keep Days:")
+	valueColor.Printf(" %d\n", cfg.KeepDays)
+	keyColor.Printf("%-15s", "Carry Over:")
+	valueColor.Printf(" %v\n", cfg.CarryOverTodos.OnlyIncomplete)
+	fmt.Println()
 }
