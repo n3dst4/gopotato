@@ -113,7 +113,10 @@ func createTodaysJournal() {
 	}
 
 	if todayFile == nil {
-		color.Green("Creating new journal file: %s", (config.JournalsPath + "/" + todayFileName))
+		labelColor := color.New(color.FgGreen)
+		pathColor := color.New(color.FgCyan)
+		labelColor.Printf("Creating new journal file: ")
+		pathColor.Printf("%s\n", config.JournalsPath+"/"+todayFileName)
 		file, err := os.Create(todayFileName)
 		if err != nil {
 			log.Fatal(err)
@@ -124,7 +127,11 @@ func createTodaysJournal() {
 			log.Fatal(err)
 		}
 	} else {
-		color.Blue("Existing journal file: %s", config.JournalsPath+"/"+todayFileName)
+		labelColor := color.New(color.FgBlue)
+		pathColor := color.New(color.FgCyan)
+		labelColor.Printf("Existing journal file: ")
+		pathColor.Printf("%s\n", config.JournalsPath+"/"+todayFileName)
 	}
+	fmt.Println()
 
 }

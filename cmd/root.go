@@ -44,7 +44,6 @@ var rootCmd = &cobra.Command{
 	Long:  LONGDESC,
 
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		fmt.Println("rootCmd.PersistentPreRun")
 		if cmd.Name() != "init" {
 			initConfig()
 		}
@@ -70,7 +69,6 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	fmt.Println("initConfig", configFilePath)
 	if configFilePath != "" {
 		configFilePath = utils.TildeToHomeDir(configFilePath)
 		viper.SetConfigFile(configFilePath)
@@ -85,7 +83,11 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+		labelColor := color.New(color.FgBlue)
+		pathColor := color.New(color.FgHiBlack)
+		fmt.Println()
+		labelColor.Printf("Using config file: ")
+		pathColor.Printf("%s\n", viper.ConfigFileUsed())
 	}
 
 	viper.Unmarshal(&config)
@@ -118,7 +120,7 @@ func validateConfig() {
 
 func printConfig(cfg *utils.Config) {
 	keyColor := color.New(color.FgBlue)
-	valueColor := color.New(color.FgGreen)
+	valueColor := color.New(color.FgHiBlack)
 
 	fmt.Printf("\nConfiguration:\n")
 	keyColor.Printf("%-15s", "Root Path:")
