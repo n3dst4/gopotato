@@ -30,6 +30,8 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// if config file already exists, exit
+		configFilePath = utils.TildeToHomeDir(configFilePath)
+
 		if _, err := os.Stat(configFilePath); err == nil {
 			color.Red("Config file already exists: %s", configFilePath)
 			os.Exit(1)
