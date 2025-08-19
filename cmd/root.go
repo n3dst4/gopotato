@@ -55,13 +55,15 @@ var rootCmd = &cobra.Command{
 	},
 }
 
+var defaultConfigPath = "~/.config/potato.toml"
+
 func init() {
 	rootCmd.PersistentFlags().StringVarP(
 		&configFilePath,
 		"config",
 		"c",
-		"~/.local/config/potato.toml",
-		"config file (default is $HOME/.gopotato.yaml)",
+		defaultConfigPath,
+		"Config file path",
 	)
 
 	// cobra.OnInitialize(initConfig)
