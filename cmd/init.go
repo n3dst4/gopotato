@@ -45,7 +45,6 @@ var initCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("init called")
 	},
 }
 
