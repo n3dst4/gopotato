@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"time"
@@ -27,11 +28,15 @@ var arrangeCmd = &cobra.Command{
 }
 
 var journalFilenameRegex *regexp.Regexp
+var monthArchiveFoldernameRegex *regexp.Regexp
 
 func init() {
 	rootCmd.AddCommand(arrangeCmd)
 	journalFilenameRegex, _ = regexp.Compile(
 		`^(\d{4})[-_](\d{2})[-_](\d{2}).(?:md|markdown)$`,
+	)
+	monthArchiveFoldernameRegex, _ = regexp.Compile(
+		`^(\d{4})[-_](\d{2})$`,
 	)
 }
 
@@ -45,6 +50,7 @@ func arrange() {
 	}
 
 	archiveOldJournals()
+	archiveOldMonths()
 	createTodaysJournal()
 }
 
@@ -57,7 +63,8 @@ func archiveOldJournals() {
 	}
 
 	now := time.Now()
-	oneMonthAgo := now.AddDate(0, -1, 0)
+	days := config.KeepDays * -1
+	cutoffDate := now.AddDate(0, 0, days)
 
 	for _, file := range entries {
 		matches := journalFilenameRegex.FindStringSubmatch(file.Name())
@@ -85,7 +92,7 @@ func archiveOldJournals() {
 
 		fileDate := time.Date(fileYear, time.Month(fileMonth), fileDay, 0, 0, 0, 0, time.UTC)
 
-		if fileDate.Before(oneMonthAgo) {
+		if fileDate.Before(cutoffDate) {
 			folderPath := config.JournalsPath + "/" + fileDate.Format("2006-01")
 			fileName := fileDate.Format("2006-01-02") + ".md"
 			color.Yellow("Archiving old file %s to %s/%s", file.Name(), folderPath, fileName)
@@ -93,6 +100,66 @@ func archiveOldJournals() {
 			os.Rename(file.Name(), fmt.Sprintf("%s/%s", folderPath, fileName))
 		}
 	}
+}
+
+func archiveOldMonths() {
+	entries, err := os.ReadDir(".")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	now := time.Now()
+	months := config.KeepMonths * -1
+	// Set to the first of the month to avoid partial months
+	now = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+	cutoffDate := now.AddDate(0, months, 0)
+
+	for _, folder := range entries {
+		matches := monthArchiveFoldernameRegex.FindStringSubmatch(folder.Name())
+
+		if len(matches) == 0 || !folder.IsDir() {
+			continue
+		}
+
+		folderYear, err := strconv.Atoi(matches[1])
+		if err != nil {
+			log.Fatalf("Invalid file year: %v\n", err)
+		}
+		folderMonth, err := strconv.Atoi(matches[2])
+		if err != nil {
+			log.Fatalf("Invalid file month: %v\n", err)
+		}
+
+		folderDate := time.Date(folderYear, time.Month(folderMonth), 1, 0, 0, 0, 0, time.UTC)
+
+		if folderDate.Before(cutoffDate) {
+			archivePath := config.JournalsPath + "/" + folderDate.Format("2006") + "/" + folderDate.Format("2006-01")
+			color.Yellow("Archiving old folder %s to %s", folder.Name(), archivePath)
+			os.MkdirAll(archivePath, os.ModePerm)
+			// merge everything in folder.Name to archivePath/folderName
+			entries, err := os.ReadDir(folder.Name())
+			if err != nil {
+				log.Fatalf("Failed to read directory %s: %v\n", folder.Name(), err)
+			}
+
+			for _, entry := range entries {
+				// if entry.IsDir() {
+				// 	continue
+				// }
+				// move the file to the new location
+				newPath := filepath.Join(archivePath, entry.Name())
+				// os.MkdirAll(filepath.Dir(newPath), os.ModePerm)
+				if err := os.Rename(filepath.Join(folder.Name(), entry.Name()), newPath); err != nil {
+					log.Fatalf("Failed to move file %s to %s: %v\n", entry.Name(), newPath, err)
+				}
+			}
+			// remove the old folder
+			if err := os.RemoveAll(folder.Name()); err != nil {
+				log.Fatalf("Failed to remove old folder %s: %v\n", folder.Name(), err)
+			}
+		}
+	}
+
 }
 
 // createTodaysJournal creates a new journal file if one does not already exist

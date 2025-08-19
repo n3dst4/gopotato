@@ -14,6 +14,7 @@ type BaselineConfig struct {
 type Config struct {
 	RootPath       string `validate:"required"`
 	KeepDays       int
+	KeepMonths     int
 	CarryOverTodos CarryOverTodos
 	JournalsPath   string
 	PagesPath      string

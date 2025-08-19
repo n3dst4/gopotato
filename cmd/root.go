@@ -26,6 +26,7 @@ Gopotato is a journal manager for Go. It is a rewrite of Potato.
 
 var config = &utils.Config{
 	KeepDays:     7,
+	KeepMonths:   6,
 	JournalsPath: "journals",
 	PagesPath:    "pages",
 	CarryOverTodos: utils.CarryOverTodos{
@@ -77,7 +78,7 @@ func initConfig() {
 	} else {
 		home, err := os.UserHomeDir()
 		cobra.CheckErr(err)
-		viper.AddConfigPath(filepath.Join(home, ".local", "config"))
+		viper.AddConfigPath(filepath.Join(home, ".config"))
 		viper.SetConfigType("toml")
 		viper.SetConfigName("potato")
 	}
