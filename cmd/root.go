@@ -40,7 +40,7 @@ var configFilePath string = ""
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "gopotato",
-	Short: "Go rewrite of potato jornal manager",
+	Short: "Go rewrite of potato journal manager",
 	Long:  LONGDESC,
 
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
