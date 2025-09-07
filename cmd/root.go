@@ -18,7 +18,7 @@ import (
 
 // constants
 const LONGDESC = `
-Gopotato is a journal manager for Go. It is a rewrite of Potato.
+Gopotato is a simple journal manager. It is a golang rewrite of Potato.
 `
 
 // values set at runtime
