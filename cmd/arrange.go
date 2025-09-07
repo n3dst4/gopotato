@@ -189,12 +189,8 @@ func archiveOldMonths() {
 			}
 
 			for _, entry := range entries {
-				// if entry.IsDir() {
-				// 	continue
-				// }
 				// move the file to the new location
 				newPath := filepath.Join(archivePath, entry.Name())
-				// os.MkdirAll(filepath.Dir(newPath), os.ModePerm)
 				if err := os.Rename(filepath.Join(folder.Name(), entry.Name()), newPath); err != nil {
 					log.Fatalf("Failed to move file %s to %s: %v\n", entry.Name(), newPath, err)
 				}
