@@ -17,6 +17,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const scratchFileName = "scratch.md"
+
 var arrangeCmd = &cobra.Command{
 	Use:   "arrange",
 	Short: "Idempotently creates today's journal and organises older journals",
@@ -49,9 +51,29 @@ func arrange() {
 		log.Fatal(err)
 	}
 
+	createScratch()
 	archiveOldJournals()
 	archiveOldMonths()
 	createTodaysJournal()
+}
+
+func createScratch() {
+	scratchPath := config.JournalsPath + "/" + scratchFileName
+	labelColor := color.New(color.FgGreen)
+	pathColor := color.New(color.FgCyan)
+	if _, err := os.Stat(scratchFileName); os.IsNotExist(err) {
+		labelColor.Printf("Creating scratch file: ")
+		pathColor.Printf("%s\n", scratchPath)
+		f, err := os.Create(scratchFileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		f.Close()
+	} else {
+		labelColor = color.New(color.FgBlue)
+		labelColor.Printf("Existing scratch file: ")
+		pathColor.Printf("%s\n", scratchPath)
+	}
 }
 
 // archiveOldJournals moves journals older than the configured threshold to a
@@ -70,6 +92,9 @@ func archiveOldJournals() {
 		matches := journalFilenameRegex.FindStringSubmatch(file.Name())
 
 		if file.IsDir() {
+			continue
+		}
+		if file.Name() == scratchFileName {
 			continue
 		}
 		if len(matches) == 0 {
@@ -93,11 +118,18 @@ func archiveOldJournals() {
 		fileDate := time.Date(fileYear, time.Month(fileMonth), fileDay, 0, 0, 0, 0, time.UTC)
 
 		if fileDate.Before(cutoffDate) {
-			folderPath := config.JournalsPath + "/" + fileDate.Format("2006-01")
-			fileName := fileDate.Format("2006-01-02") + ".md"
-			color.Yellow("Archiving old file %s to %s/%s", file.Name(), folderPath, fileName)
-			os.MkdirAll(folderPath, os.ModePerm)
-			os.Rename(file.Name(), fmt.Sprintf("%s/%s", folderPath, fileName))
+			expectedContent := fmt.Sprintf("# %s\n\n", fileDate.Format("2006-01-02"))
+			content, err := os.ReadFile(file.Name())
+			if err == nil && string(content) == expectedContent {
+				color.Yellow("Deleting unmodified journal %s", file.Name())
+				os.Remove(file.Name())
+			} else {
+				folderPath := config.JournalsPath + "/" + fileDate.Format("2006-01")
+				fileName := fileDate.Format("2006-01-02") + ".md"
+				color.Yellow("Archiving old file %s to %s/%s", file.Name(), folderPath, fileName)
+				os.MkdirAll(folderPath, os.ModePerm)
+				os.Rename(file.Name(), fmt.Sprintf("%s/%s", folderPath, fileName))
+			}
 		}
 	}
 }
