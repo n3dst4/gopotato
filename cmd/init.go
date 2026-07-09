@@ -22,7 +22,7 @@ var baselineConfig = utils.BaselineConfig{
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Create a new config file",
-	Long: `Generate template config file at the default location (~/.config/potato.toml)`,
+	Long:  `Generate template config file at the default location (~/.config/potato.toml)`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// if config file already exists, exit
 		configFilePath = utils.TildeToHomeDir(configFilePath)

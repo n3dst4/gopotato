@@ -14,7 +14,7 @@ import (
 var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Not implemented yet",
-	Long: `One day this will launch a webserver.`,
+	Long:  `One day this will launch a webserver.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("serve called")
 		viper.Get("config")
