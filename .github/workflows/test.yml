@@ -32,3 +32,5 @@ jobs:
             exit 1
           fi
       - uses: golangci/golangci-lint-action@v6
+        with:
+          install-mode: goinstall
