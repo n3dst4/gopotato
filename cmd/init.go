@@ -36,12 +36,16 @@ var initCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer file.Close()
+		defer func() {
+			if err := file.Close(); err != nil {
+				log.Fatal(err)
+			}
+		}()
 		err = toml.NewEncoder(file).Encode(baselineConfig)
 		if err != nil {
 			log.Fatal(err)
 		}
-		_, err = file.WriteString(fmt.Sprintf("# %s\n\n", configFilePath))
+		_, err = fmt.Fprintf(file, "# %s\n\n", configFilePath)
 		if err != nil {
 			log.Fatal(err)
 		}

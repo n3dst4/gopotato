@@ -93,7 +93,9 @@ func initConfig() {
 		pathColor.Printf("%s\n", viper.ConfigFileUsed())
 	}
 
-	viper.Unmarshal(&config)
+	if err := viper.Unmarshal(&config); err != nil {
+		log.Fatal(err)
+	}
 	// validate := validator.New(validator.WithRequiredStructEnabled())
 	// err := validate.Struct(config)
 	// if err != nil {

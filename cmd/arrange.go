@@ -46,7 +46,11 @@ func init() {
 func arrange() {
 	validateConfig()
 	err := os.Chdir(config.JournalsPath)
-	defer os.Chdir(config.RootPath)
+	defer func() {
+		if err := os.Chdir(config.RootPath); err != nil {
+			log.Fatal(err)
+		}
+	}()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,7 +72,9 @@ func createScratch() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		f.Close()
+		if err := f.Close(); err != nil {
+			log.Fatal(err)
+		}
 	} else {
 		labelColor = color.New(color.FgBlue)
 		labelColor.Printf("Existing scratch file: ")
@@ -122,13 +128,19 @@ func archiveOldJournals() {
 			content, err := os.ReadFile(file.Name())
 			if err == nil && string(content) == expectedContent {
 				color.Yellow("Deleting unmodified journal %s", file.Name())
-				os.Remove(file.Name())
+				if err := os.Remove(file.Name()); err != nil {
+					log.Fatalf("failed to delete %s: %v", file.Name(), err)
+				}
 			} else {
 				folderPath := config.JournalsPath + "/" + fileDate.Format("2006-01")
 				fileName := fileDate.Format("2006-01-02") + ".md"
 				color.Yellow("Archiving old file %s to %s/%s", file.Name(), folderPath, fileName)
-				os.MkdirAll(folderPath, os.ModePerm)
-				os.Rename(file.Name(), fmt.Sprintf("%s/%s", folderPath, fileName))
+				if err := os.MkdirAll(folderPath, os.ModePerm); err != nil {
+					log.Fatalf("failed to create directory %s: %v", folderPath, err)
+				}
+				if err := os.Rename(file.Name(), fmt.Sprintf("%s/%s", folderPath, fileName)); err != nil {
+					log.Fatalf("failed to move %s: %v", file.Name(), err)
+				}
 			}
 		}
 	}
@@ -167,7 +179,9 @@ func archiveOldMonths() {
 		if folderDate.Before(cutoffDate) {
 			archivePath := config.JournalsPath + "/" + folderDate.Format("2006") + "/" + folderDate.Format("2006-01")
 			color.Yellow("Archiving old folder %s to %s", folder.Name(), archivePath)
-			os.MkdirAll(archivePath, os.ModePerm)
+			if err := os.MkdirAll(archivePath, os.ModePerm); err != nil {
+				log.Fatalf("failed to create directory %s: %v", archivePath, err)
+			}
 			// merge everything in folder.Name to archivePath/folderName
 			entries, err := os.ReadDir(folder.Name())
 			if err != nil {
@@ -220,8 +234,12 @@ func createTodaysJournal() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer file.Close()
-		_, err = file.WriteString(fmt.Sprintf("# %s\n\n", todayDateString))
+		defer func() {
+			if err := file.Close(); err != nil {
+				log.Fatal(err)
+			}
+		}()
+		_, err = fmt.Fprintf(file, "# %s\n\n", todayDateString)
 		if err != nil {
 			log.Fatal(err)
 		}
